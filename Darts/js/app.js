@@ -3,8 +3,41 @@ console.dir(canvas)
 var canvasContext = canvas.getContext("2d");
 var score = 0
 var scoreBoard = document.getElementById('score')
-
 var dart = document.getElementById('dart')
+var dartImg = document.getElementById('dartImg')
+
+var bezierA = 0
+var bezierB = 100
+var bezierC = 10
+var t = 0
+var trst = 0
+var fluctuation = 0
+var baseDartX = 0
+
+var sound = new Audio()
+sound.src = "./audio/hit.mp3"
+sound.load()
+
+function bezierCalc() {
+    var x = ((1 - t) ** 2) * bezierA + 2 * (1 - t) * t * bezierB + (t ** 2) * bezierC
+    t += 0.05
+    dart.style.top = `${baseDartX - x}px`
+    dartImg.style.height = `${(1 - t * 0.5) * 100}%`
+    dartImg.style.width = `${(1 - t * 0.5) * 100}%`
+    if (t > 1) {
+        clearInterval(trst)
+        t = 0
+        sound.play()
+        checkUpdateScore()
+        setTimeout(prepareAndCreateListners, 1000)
+
+    }
+}
+
+function checkUpdateScore() {
+    score += checkHit(parseFloat(dart.style.left) - canvas.offsetLeft, parseFloat(dart.style.top) + 35 - canvas.offsetTop)
+    scoreBoard.innerText = score.toString()
+}
 
 function makeCircle(radius, color) {
     canvasContext.beginPath();
@@ -31,26 +64,53 @@ function checkHit(xCoord, yCoord) {
     return 0
 }
 
+function dartFluctuation() {
+    dart.style.top = `${parseFloat(dart.style.top) + (Math.random() - 0.5) * 3}px`
+    dart.style.left = `${parseFloat(dart.style.left) + (Math.random() - 0.5) * 3}px`
+}
+
 
 createBoard()
+prepareAndCreateListners()
 
 
-canvas.addEventListener('mousemove', e => {
-    console.log(e.pageX,e.pageY)
-    dart.style.top = `${e.pageY-41}px`
-    dart.style.left = `${e.pageX}px`
-})
+function prepareAndCreateListners() {
+    dartImg.style.height='100%'
+    dartImg.style.width='100%'
 
-canvas.addEventListener('mouseup', e => {
-    score+=checkHit(e.pageX-canvas.offsetLeft,e.pageY-canvas.offsetTop)
-    scoreBoard.innerText = score.toString();
-})
+    canvas.onmousemove = e => {
+        console.log(e.pageX, e.pageY)
+        dart.style.top = `${e.pageY - 41}px`
+        dart.style.left = `${e.pageX}px`
 
-dart.addEventListener('mousemove', e => {
-    console.log(e.pageX,e.pageY)
-    dart.style.top = `${e.pageY-41}px`
-    dart.style.left = `${e.pageX}px`
-})
+    }
+
+    canvas.onmouseup = e => {
+        baseDartX = parseFloat(dart.style.top)
+        trst = setInterval(bezierCalc, 30)
+        clearListners()
+        fluctuationOff()
+    }
+
+    fluctuationOn()
+}
+
+function clearListners() {
+    canvas.onmouseup = () => {
+    }
+    canvas.onmousemove = () => {
+    }
+
+}
+
+function fluctuationOn() {
+    fluctuation = setInterval(dartFluctuation, 50)
+}
+
+function fluctuationOff() {
+    clearInterval(fluctuation)
+}
+
 
 
 

@@ -23,16 +23,26 @@
         }
 
         #dart {
+            display: flex;
+            align-items: flex-end;
+            pointer-events: none;
             position: fixed;
             top: 10px;
             left: 10px;
             height: 40px;
             width: 35px;
+
+        }
+
+        #dart>img{
+            float: bottom;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
 <body>
-<img id="dart" src="./img/dart.png" alt="red dart">
+<div id="dart"><img id="dartImg" src="./img/dart.png" alt="red dart"></div>
 <div id="score">In developing...</div>
 <canvas id="game-canvas" width="480" height="320">
 
